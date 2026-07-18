@@ -40,5 +40,25 @@ $_ENV['DB_DATABASE']   = $sqliteDest;
 // ─── Sanctum / Auth ───────────────────────────────────────────────────────────
 $_ENV['SANCTUM_STATEFUL_DOMAINS'] = 'localhost,localhost:3000,localhost:5173,.vercel.app';
 
-// ─── Load Laravel ─────────────────────────────────────────────────────────────
-require __DIR__ . '/../backend/public/index.php';
+// ─── Debugging Helper ─────────────────────────────────────────────────────────
+if (isset($_GET['debug_php'])) {
+    phpinfo();
+    exit;
+}
+
+// ─── Load Laravel with Error Catching ─────────────────────────────────────────
+try {
+    require __DIR__ . '/../backend/public/index.php';
+} catch (\Throwable $e) {
+    header('HTTP/1.1 500 Internal Server Error');
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Vercel Serverless PHP Crash',
+        'error' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => array_slice(explode("\n", $e->getTraceAsString()), 0, 10)
+    ], JSON_PRETTY_PRINT);
+    exit;
+}
