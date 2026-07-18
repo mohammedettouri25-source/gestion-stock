@@ -1,19 +1,13 @@
 {
   "version": 2,
-  "outputDirectory": "backend/public",
-  "functions": {
-    "api/index.php": {
-      "runtime": "vercel-php@0.7.1"
-    }
-  },
-  "headers": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, PATCH, DELETE, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, X-Requested-With, Accept" }
-      ]
+      "src": "api/index.php",
+      "use": "vercel-php@0.7.1"
+    },
+    {
+      "src": "backend/public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -30,11 +24,20 @@
       "status": 204
     },
     {
-      "handle": "filesystem"
+      "src": "/api/(.*)",
+      "dest": "/api/index.php"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/backend/public/assets/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|ico|png|svg|json|webmanifest|woff2?))$",
+      "dest": "/backend/public/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/index.php"
+      "dest": "/backend/public/index.html"
     }
   ]
 }
