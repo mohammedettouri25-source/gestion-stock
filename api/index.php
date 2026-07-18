@@ -9,13 +9,24 @@ $_ENV['APP_ROUTES_CACHE']   = '/tmp/routes.php';
 $_ENV['APP_SERVICES_CACHE'] = '/tmp/services.php';
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp';
 
-// Use stateless drivers — no persistent DB/Redis needed
-$_ENV['CACHE_DRIVER']   = 'array';
-$_ENV['SESSION_DRIVER'] = 'cookie';
-$_ENV['LOG_CHANNEL']    = 'stderr';
+// ─── App Core Settings ────────────────────────────────────────────────────────
+// backend/.env is gitignored — must define critical vars here for Vercel
+$_ENV['APP_NAME']  = 'GStock';
+$_ENV['APP_ENV']   = 'production';
+$_ENV['APP_DEBUG'] = 'false';
+$_ENV['APP_KEY']   = 'base64:4oQM8R1aTdsA0kWClG0XWbpnbnCioGUi/sawfSIQrwY=';
+$_ENV['APP_URL']   = getenv('VERCEL_URL')
+    ? 'https://' . getenv('VERCEL_URL')
+    : 'http://localhost:8000';
+
+// ─── Stateless Drivers (required for serverless) ──────────────────────────────
+$_ENV['CACHE_DRIVER']    = 'array';
+$_ENV['SESSION_DRIVER']  = 'cookie';
+$_ENV['QUEUE_CONNECTION']= 'sync';
+$_ENV['LOG_CHANNEL']     = 'stderr';
 
 // ─── SQLite Setup ─────────────────────────────────────────────────────────────
-// Copy the SQLite database to /tmp so Laravel can write to it
+// Copy the bundled SQLite database to /tmp (writable) on first request
 $sqliteSource = __DIR__ . '/../backend/database/database.sqlite';
 $sqliteDest   = '/tmp/database.sqlite';
 
@@ -26,9 +37,8 @@ if (file_exists($sqliteSource) && !file_exists($sqliteDest)) {
 $_ENV['DB_CONNECTION'] = 'sqlite';
 $_ENV['DB_DATABASE']   = $sqliteDest;
 
-// ─── App Settings ─────────────────────────────────────────────────────────────
-$_ENV['APP_ENV']   = 'production';
-$_ENV['APP_DEBUG'] = 'false';
+// ─── Sanctum / Auth ───────────────────────────────────────────────────────────
+$_ENV['SANCTUM_STATEFUL_DOMAINS'] = 'localhost,localhost:3000,localhost:5173,.vercel.app';
 
-// Load Laravel's index.php
+// ─── Load Laravel ─────────────────────────────────────────────────────────────
 require __DIR__ . '/../backend/public/index.php';
