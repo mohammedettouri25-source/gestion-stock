@@ -9,7 +9,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const { t } = useI18n();
 
-const email = ref('admin@gstock.com');
+const email = ref('admin@gstock.ma');
 const password = ref('password');
 const errorMessage = ref('');
 const loadingLocal = ref(false);
@@ -26,7 +26,7 @@ const handleLogin = async () => {
   try {
     // If offline, simulate auth using cached creds or bypass if pre-auth saved
     if (!navigator.onLine) {
-      if (email.value === 'admin@gstock.com' && password.value === 'password') {
+      if (email.value === 'admin@gstock.ma' && password.value === 'password') {
         const dummyUser = { id: 1, name: 'Admin Account', email: email.value, role: 'admin' };
         localStorage.setItem('user', JSON.stringify(dummyUser));
         localStorage.setItem('auth_token', 'offline-fake-token-123');
@@ -86,7 +86,7 @@ const handleLogin = async () => {
               <input 
                 type="email" 
                 v-model="email"
-                placeholder="admin@gstock.com"
+                placeholder="admin@gstock.ma"
                 class="w-full pl-12 pr-4 py-3 rounded-xl border border-white/10 bg-white/5 focus:outline-none focus:ring-2 focus:ring-accent-blue/50 focus:border-accent-blue text-sm transition-all duration-200 text-white placeholder:text-slate-600"
                 required
               />
@@ -127,7 +127,7 @@ const handleLogin = async () => {
 
       <!-- Quick credentials help text -->
       <div class="mt-6 text-center text-xs text-slate-600">
-        {{ t('login.demo_creds') }} <span class="text-slate-400">admin@gstock.com</span> / <span class="text-slate-400">password</span>
+        {{ t('login.demo_creds') }} <span class="text-slate-400">admin@gstock.ma</span> / <span class="text-slate-400">password</span>
       </div>
     </div>
   </div>

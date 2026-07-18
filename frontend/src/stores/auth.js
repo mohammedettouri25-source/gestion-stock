@@ -50,7 +50,12 @@ export const useAuthStore = defineStore('auth', {
           return true;
         }
       } catch (err) {
-        this.error = err.response?.data?.message || err.message || 'Login failed';
+        // Network error (no response from server) — likely CORS or server down
+        if (!err.response) {
+          this.error = 'خطأ في الاتصال بالسيرفر. تحقق من الإنترنت أو أعد المحاولة.';
+        } else {
+          this.error = err.response?.data?.message || err.message || 'Login failed';
+        }
         this.loading = false;
         throw err;
       }
