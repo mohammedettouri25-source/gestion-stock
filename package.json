@@ -2,6 +2,6 @@
   "name": "gstock-monolith",
   "private": true,
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && cd ../backend && composer install --no-dev --optimize-autoloader"
+    "build": "bash build.sh"
   }
 }
