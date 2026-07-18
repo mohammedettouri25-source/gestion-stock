@@ -1,9 +1,4 @@
 node_modules
 .env
 gstock-production.zip
-vendor
-public/build
-public/assets
-backend/vendor
-backend/.env
 frontend/node_modules
