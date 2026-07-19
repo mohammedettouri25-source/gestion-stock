@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import Login from '../views/Login.vue';
+import { useAuthStore } from '../stores/auth';
 
 const routes = [
   {
@@ -80,8 +81,17 @@ const router = createRouter({
 
 // Navigation Guard
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('auth_token');
-  const user = localStorage.getItem('user');
+  const authStore = useAuthStore();
+  const token = authStore.token || localStorage.getItem('auth_token');
+  let user = authStore.user;
+
+  if (!user) {
+    try {
+      user = JSON.parse(localStorage.getItem('user') || 'null');
+    } catch (error) {
+      user = null;
+    }
+  }
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!token) {
