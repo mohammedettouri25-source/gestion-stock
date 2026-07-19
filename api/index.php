@@ -1,4 +1,8 @@
 <?php
+if (isset($_GET['debug_php'])) {
+    phpinfo();
+    exit;
+}
 
 // ─── Vercel Serverless Environment Config ────────────────────────────────────
 // All caches must live in /tmp (only writable dir on Vercel)
@@ -39,12 +43,6 @@ $_ENV['DB_DATABASE']   = $sqliteDest;
 
 // ─── Sanctum / Auth ───────────────────────────────────────────────────────────
 $_ENV['SANCTUM_STATEFUL_DOMAINS'] = 'localhost,localhost:3000,localhost:5173,.vercel.app';
-
-// ─── Debugging Helper ─────────────────────────────────────────────────────────
-if (isset($_GET['debug_php'])) {
-    phpinfo();
-    exit;
-}
 
 // ─── Load Laravel with Error Catching ─────────────────────────────────────────
 try {
