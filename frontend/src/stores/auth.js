@@ -1,14 +1,18 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+function getErrorMessage(error) {
+  if (error?.message) return error.message;
+  return 'Authentication failed';
+}
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('auth_token') || null,
     loading: false,
-    error: null
+    error: null,
+    session: null
   }),
   getters: {
     isAuthenticated: (state) => !!state.token,
@@ -20,62 +24,45 @@ export const useAuthStore = defineStore('auth', {
     async login(email, password) {
       this.loading = true;
       this.error = null;
-      
+
       try {
-        // Fallback for offline login if user is already saved locally
-        if (!navigator.onLine) {
-          if (this.user && email === this.user.email) {
-            // Offline log in with last active session is allowed in PWA
-            this.loading = false;
-            return true;
-          }
-          throw new Error('Offline. Please login when online or use cached credentials.');
+        if (!isSupabaseConfigured()) {
+          throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
         }
 
-        const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-        
-        if (response.data && response.data.success) {
-          const { user, token } = response.data.data;
-          
-          this.user = user;
-          this.token = token;
-          
-          localStorage.setItem('user', JSON.stringify(user));
-          localStorage.setItem('auth_token', token);
-          
-          // Configure axios default header
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
-          this.loading = false;
-          return true;
-        }
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        this.session = data.session;
+        this.token = data.session?.access_token || null;
+        this.user = data.user;
+
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('auth_token', this.token || '');
+
+        this.loading = false;
+        return true;
       } catch (err) {
-        // Network error (no response from server) — likely CORS or server down
-        if (!err.response) {
-          this.error = 'خطأ في الاتصال بالسيرفر. تحقق من الإنترنت أو أعد المحاولة.';
-        } else {
-          this.error = err.response?.data?.message || err.message || 'Login failed';
-        }
+        console.error('[Auth] Login failed', err);
+        this.error = getErrorMessage(err);
         this.loading = false;
         throw err;
       }
     },
-    
+
     async logout() {
       try {
-        if (navigator.onLine && this.token) {
-          await axios.post(`${API_URL}/auth/logout`, {}, {
-            headers: { Authorization: `Bearer ${this.token}` }
-          });
+        if (supabase) {
+          await supabase.auth.signOut();
         }
       } catch (e) {
         console.error('Logout request failed:', e);
       } finally {
         this.user = null;
         this.token = null;
+        this.session = null;
         localStorage.removeItem('user');
         localStorage.removeItem('auth_token');
-        delete axios.defaults.headers.common['Authorization'];
       }
     }
   }

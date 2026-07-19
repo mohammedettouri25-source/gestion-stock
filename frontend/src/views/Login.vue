@@ -24,24 +24,11 @@ const handleLogin = async () => {
   errorMessage.value = '';
 
   try {
-    // If offline, simulate auth using cached creds or bypass if pre-auth saved
-    if (!navigator.onLine) {
-      if (email.value === 'admin@gstock.ma' && password.value === 'password') {
-        const dummyUser = { id: 1, name: 'Admin Account', email: email.value, role: 'admin' };
-        localStorage.setItem('user', JSON.stringify(dummyUser));
-        localStorage.setItem('auth_token', 'offline-fake-token-123');
-        authStore.user = dummyUser;
-        authStore.token = 'offline-fake-token-123';
-        router.push('/');
-        return;
-      }
-    }
-
     await authStore.login(email.value, password.value);
     router.push('/');
   } catch (err) {
-    console.error(err);
-    errorMessage.value = err.response?.data?.message || err.message || t('login.auth_failed');
+    console.error('[Login] Request failed', err);
+    errorMessage.value = err?.response?.data?.message || err?.message || t('login.auth_failed');
   } finally {
     loadingLocal.value = false;
   }

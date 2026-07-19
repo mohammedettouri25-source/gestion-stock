@@ -1,14 +1,14 @@
 {
   "version": 2,
   "outputDirectory": "backend/public",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "src": "/((?!api/).*)",
+      "dest": "/index.html"
     }
   ]
 }
