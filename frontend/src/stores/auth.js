@@ -6,9 +6,19 @@ function getErrorMessage(error) {
   return 'Authentication failed';
 }
 
+function getStoredUser() {
+  try {
+    const stored = localStorage.getItem('user');
+    if (!stored) return null;
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
+    user: getStoredUser(),
     token: localStorage.getItem('auth_token') || null,
     loading: false,
     error: null,
